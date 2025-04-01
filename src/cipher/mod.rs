@@ -1,3 +1,4 @@
+pub mod substitution_cipher;
 pub mod transposition_cipher;
 use crate::padding::PaddingValidationError;
 use thiserror::Error;
@@ -14,7 +15,7 @@ pub enum CipherOperationError {
 }
 
 /// Trait for encryption algorithms (e.g., BlockCipher).
-pub trait EncryptionAlgorithm {
+pub trait Cipher {
     /// Encrypts a plaintext message using a cipher algorithm.
     ///
     /// # Arguments
@@ -27,6 +28,8 @@ pub trait EncryptionAlgorithm {
     /// * `Ok(Vec<u8>)` - The encrypted data.
     /// * `Err(CipherOperationError)` - Error if encryption fails.
     fn encrypt(&self, plain: &[u8], key: &[u8]) -> Result<Vec<u8>, CipherOperationError>;
+
+    fn encrypt_and_base64(&self, plain: &[u8], key: &[u8]) -> Result<String, CipherOperationError>;
 
     /// Decrypts an encrypted message.
     ///

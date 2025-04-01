@@ -1,6 +1,6 @@
-use super::{CipherOperationError, EncryptionAlgorithm};
+use super::{Cipher, CipherOperationError};
 use crate::padding::PaddingStrategy;
-
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 /// Struct that handles Transposition Cipher with PKCS#7 Padding.
 pub struct TranspositionCipher {
     padding_strategy: Box<dyn PaddingStrategy>,
@@ -12,7 +12,7 @@ impl TranspositionCipher {
     }
 }
 
-impl EncryptionAlgorithm for TranspositionCipher {
+impl Cipher for TranspositionCipher {
     /// Encrypts a message using the transposition cipher with PKCS#7 padding.
     ///
     /// # Arguments
@@ -91,6 +91,14 @@ impl EncryptionAlgorithm for TranspositionCipher {
         self.padding_strategy
             .strip_padding(&flattened, key_length as u32)
             .map_err(CipherOperationError::PaddingValidationError)
+    }
+
+    fn encrypt_and_base64(&self, plain: &[u8], key: &[u8]) -> Result<String, CipherOperationError> {
+        let result = self.encrypt(plain, key);
+        match result {
+            Err(e) => Err(e),
+            Ok(msg) => Ok(STANDARD.encode(msg)),
+        }
     }
 }
 
